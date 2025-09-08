@@ -23,7 +23,9 @@ type Friend = {
 };
 function ChatPage() {
   const [selectedUserId, setSelectedUserId] = useState<string | number>("");
-  const [selectedConversationId, setSelectedConversationId] = useState<number | null>(null);
+  const [selectedConversationId, setSelectedConversationId] = useState<
+    number | null
+  >(null);
   const router = useRouter();
   const [friends, setFriends] = useState<Friend[]>([]);
   const [text, setText] = useState("");
@@ -37,7 +39,9 @@ function ChatPage() {
   useEffect(() => {
     if (!selectedConversationId || !user) return;
     const interval = setInterval(async () => {
-      const msgRes = await SigninService.getMessages(Number(selectedConversationId));
+      const msgRes = await SigninService.getMessages(
+        Number(selectedConversationId),
+      );
       if (msgRes.success && msgRes.messages) {
         setFriends((prev) =>
           prev.map((f) =>
@@ -66,12 +70,17 @@ function ChatPage() {
         setUser(res.user);
         try {
           // ดึง users ทั้งหมด (เพื่อนทุกคน)
-          const resp = await fetch("http://localhost:8080/users", { credentials: "include" });
+          const resp = await fetch("http://localhost:8080/users", {
+            credentials: "include",
+          });
           const data = await resp.json();
           if (data.ok) {
             // ดึง conversations ทั้งหมดของ user
             const convRes = await SigninService.getConversations();
-            const conversations = convRes.success && convRes.conversations ? convRes.conversations : [];
+            const conversations =
+              convRes.success && convRes.conversations
+                ? convRes.conversations
+                : [];
             // map รายชื่อเพื่อน
             const friendsList = await Promise.all(
               data.users
@@ -83,7 +92,7 @@ function ChatPage() {
                       !c.is_group &&
                       c.members &&
                       c.members.some((m: any) => m.id === u.id) &&
-                      c.members.some((m: any) => m.id === res.user.id)
+                      c.members.some((m: any) => m.id === res.user.id),
                   );
                   let messages: Message[] = [];
                   if (conv) {
@@ -104,7 +113,7 @@ function ChatPage() {
                     messages,
                     online: true,
                   };
-                })
+                }),
             );
             setFriends(friendsList);
             if (friendsList.length > 0) {
@@ -122,7 +131,7 @@ function ChatPage() {
       } else {
         setUser(null);
         setFriends([]);
-  setSelectedUserId("");
+        setSelectedUserId("");
         router.replace("/signin");
       }
     }
@@ -152,10 +161,15 @@ function ChatPage() {
     const trimmed = text.trim();
     if (!trimmed || !selectedConversationId) return;
     // ส่งข้อความไป backend
-    const res = await SigninService.sendMessage(Number(selectedConversationId), trimmed);
+    const res = await SigninService.sendMessage(
+      Number(selectedConversationId),
+      trimmed,
+    );
     if (res.success) {
       // ดึงข้อความล่าสุดจาก backend
-      const msgRes = await SigninService.getMessages(Number(selectedConversationId));
+      const msgRes = await SigninService.getMessages(
+        Number(selectedConversationId),
+      );
       if (msgRes.success && msgRes.messages) {
         setFriends((prev) =>
           prev.map((f) =>
@@ -189,36 +203,38 @@ function ChatPage() {
 
   // ...existing code...
   return (
-    <div className="min-h-screen bg-gray-50 text-gray-800 dark:bg-gray-900 dark:text-gray-100">
-      <div className="mx-auto max-w-[1200px] px-4 py-8">
-        <h1 className="mb-4 text-2xl font-semibold">หน้าแชท</h1>
-        <div className="flex h-[70vh] overflow-hidden rounded-lg bg-white shadow dark:bg-gray-800">
+    <div className="min-h-screen w-full bg-gradient-to-br from-yellow-100 via-orange-100 to-yellow-200">
+      <div className="flex h-screen w-full flex-col items-center justify-center p-4">
+        <h1 className="mb-6 text-4xl font-bold text-orange-600 drop-shadow-lg">
+          💬 หน้าแชท
+        </h1>
+        <div className="flex h-[85vh] w-full max-w-6xl overflow-hidden rounded-3xl border border-orange-200 bg-white/90 shadow-2xl backdrop-blur">
           {/* Left: Friends list */}
-          <aside className="flex w-80 flex-shrink-0 flex-col border-r border-gray-200 dark:border-gray-700">
-            <div className="flex items-center gap-3 px-4 py-3">
-              <div className="text-lg font-medium">โปรไฟล์ผู้ใช้</div>
+          <aside className="flex w-80 flex-shrink-0 flex-col border-r border-orange-200 bg-gradient-to-b from-yellow-50 to-orange-100">
+            <div className="flex items-center gap-3 bg-gradient-to-r from-orange-200 to-yellow-200 px-6 py-4">
+              <div className="text-xl font-bold text-orange-700">
+                👤 โปรไฟล์ผู้ใช้
+              </div>
             </div>
-            <div className="space-y-1 overflow-auto px-2">
+            <div className="space-y-2 overflow-auto px-4 py-2">
               {user && (
-                <div
-                  className={`flex w-full items-center gap-3 rounded-md bg-gray-100 px-3 py-2 dark:bg-gray-700`}
-                >
-                  <div className="relative flex h-10 w-10 items-center justify-center rounded-full bg-indigo-200 text-indigo-800 dark:bg-indigo-600 dark:text-indigo-100">
-                    <FiUser />
-                    <span className="absolute right-0 bottom-0 block h-3 w-3 rounded-full border-2 border-white bg-green-500"></span>
+                <div className="flex w-full items-center gap-3 rounded-2xl border border-orange-200 bg-gradient-to-r from-orange-100 to-yellow-100 px-4 py-3 shadow-sm">
+                  <div className="relative flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-yellow-300 to-orange-400 text-white shadow-lg">
+                    <FiUser size={24} />
+                    <span className="absolute right-0 bottom-0 block h-4 w-4 rounded-full border-2 border-white bg-green-500"></span>
                   </div>
                   <div className="flex-1">
-                    <div className="font-medium">
+                    <div className="font-bold text-orange-800">
                       {user.fullname || user.username || "ไม่ระบุ"}
                     </div>
                   </div>
                 </div>
               )}
             </div>
-            <div className="mb-2 text-sm text-gray-500 dark:text-gray-300">
-              เพื่อน
+            <div className="mb-3 px-6 text-base font-bold text-orange-600">
+              🌟 เพื่อน
             </div>
-            <div className="space-y-1">
+            <div className="space-y-2 px-4 pb-4">
               {friends.map((f) => (
                 <button
                   key={f.id}
@@ -232,7 +248,9 @@ function ChatPage() {
                         memberIds: [Number(f.id)],
                       });
                       if (res.success && res.conversationId) {
-                        const msgRes = await SigninService.getMessages(res.conversationId);
+                        const msgRes = await SigninService.getMessages(
+                          res.conversationId,
+                        );
                         setFriends((prev) =>
                           prev.map((ff) =>
                             ff.id === f.id
@@ -243,38 +261,43 @@ function ChatPage() {
                                     msgRes.success && msgRes.messages
                                       ? msgRes.messages.map((m: any) => ({
                                           id: m.id,
-                                          from: m.sender_id === user?.id ? "me" : "them",
+                                          from:
+                                            m.sender_id === user?.id
+                                              ? "me"
+                                              : "them",
                                           text: m.text,
                                           time: m.created_at,
                                         }))
                                       : [],
                                 }
-                              : ff
-                          )
+                              : ff,
+                          ),
                         );
                         setSelectedUserId(f.id);
                         setSelectedConversationId(res.conversationId);
                       }
                     }
                   }}
-                  className={`flex w-full items-center gap-2 rounded-md px-3 py-2 text-left ${
+                  className={`flex w-full items-center gap-3 rounded-2xl border border-transparent px-4 py-3 text-left transition-all duration-200 ${
                     selectedUserId === f.id
-                      ? "bg-indigo-100 dark:bg-indigo-700"
-                      : "hover:bg-gray-100 dark:hover:bg-gray-700"
+                      ? "scale-105 transform border-orange-400 bg-gradient-to-r from-orange-200 to-yellow-200 shadow-lg"
+                      : "hover:border-orange-300 hover:bg-gradient-to-r hover:from-yellow-100 hover:to-orange-100 hover:shadow-md"
                   }`}
                 >
-                  <div className="relative flex h-8 w-8 items-center justify-center rounded-full bg-gray-200 text-gray-600 dark:bg-gray-600 dark:text-gray-100">
-                    <FiUser />
+                  <div className="relative flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-yellow-200 to-orange-300 text-orange-900 shadow-md">
+                    <FiUser size={20} />
                     <span
-                      className={`absolute right-0 bottom-0 block h-2.5 w-2.5 rounded-full border-2 border-white ${
+                      className={`absolute right-0 bottom-0 block h-3 w-3 rounded-full border-2 border-white ${
                         f.online ? "bg-green-500" : "bg-gray-400"
                       }`}
                       title={f.online ? "ออนไลน์" : "ออฟไลน์"}
                     ></span>
                   </div>
-                  <span className="flex-1 truncate">{f.name}</span>
+                  <span className="flex-1 truncate font-semibold text-orange-800">
+                    {f.name}
+                  </span>
                   {f.unread ? (
-                    <span className="ml-2 rounded-full bg-red-500 px-2 py-0.5 text-xs text-white">
+                    <span className="ml-2 rounded-full bg-gradient-to-r from-red-500 to-pink-500 px-3 py-1 text-xs font-bold text-white shadow-md">
                       {f.unread}
                     </span>
                   ) : null}
@@ -284,66 +307,72 @@ function ChatPage() {
           </aside>
 
           {/* Right: Chat area */}
-          <main className="flex flex-1 flex-col">
-            <header className="flex items-center gap-3 border-b border-gray-200 px-4 py-3 dark:border-gray-700">
-              <div className="relative flex h-10 w-10 items-center justify-center rounded-full bg-indigo-200 text-indigo-800 dark:bg-indigo-600 dark:text-indigo-100">
-                <FiUser />
+          <main className="flex flex-1 flex-col bg-gradient-to-br from-yellow-50 to-orange-50">
+            <header className="flex items-center gap-4 border-b border-orange-200 bg-gradient-to-r from-yellow-100 to-orange-100 px-6 py-4">
+              <div className="relative flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-yellow-300 to-orange-400 text-white shadow-lg">
+                <FiUser size={24} />
                 <span
-                  className={`absolute right-0 bottom-0 block h-3 w-3 rounded-full border-2 border-white ${selected?.online ? "bg-green-500" : "bg-gray-400"}`}
+                  className={`absolute right-0 bottom-0 block h-4 w-4 rounded-full border-2 border-white ${selected?.online ? "bg-green-500" : "bg-gray-400"}`}
                 ></span>
               </div>
               <div>
-                <div className="font-medium">{selected?.name || "ไม่ระบุ"}</div>
-                <div className="text-sm text-gray-500 dark:text-gray-300">
-                  {selected?.online ? "ออนไลน์" : "ออฟไลน์"}
+                <div className="text-xl font-bold text-orange-700">
+                  {selected?.name || "ไม่ระบุ"}
+                </div>
+                <div className="text-sm font-medium text-orange-500">
+                  {selected?.online ? "🟢 ออนไลน์" : "⚫ ออฟไลน์"}
                 </div>
               </div>
             </header>
 
             <section
               ref={scrollRef}
-              className="flex-1 space-y-4 overflow-auto bg-gray-50 p-4 dark:bg-gray-900"
+              className="flex-1 space-y-4 overflow-auto bg-gradient-to-br from-yellow-50 to-orange-50 p-6"
             >
               {selected?.messages && selected.messages.length > 0 ? (
                 selected.messages.map((m) => (
                   <div
                     key={m.id}
-                    className={`max-w-[70%] ${m.from === "me" ? "ml-auto text-right" : ""}`}
+                    className={`max-w-[75%] ${m.from === "me" ? "ml-auto text-right" : ""}`}
                   >
                     <div
-                      className={`inline-block rounded-lg px-4 py-2 ${
+                      className={`inline-block rounded-3xl px-6 py-3 text-base font-medium shadow-lg transition-all duration-200 ${
                         m.from === "me"
-                          ? "bg-indigo-600 text-white"
-                          : "border bg-white text-gray-800 dark:bg-gray-800 dark:text-gray-100"
+                          ? "bg-gradient-to-r from-orange-400 to-yellow-300 text-white shadow-orange-200"
+                          : "border border-orange-200 bg-white text-orange-900 shadow-yellow-100"
                       }`}
                     >
                       {m.text}
                     </div>
-                    <div className="mt-1 text-xs text-gray-400">{m.time}</div>
+                    <div className="mt-2 text-xs font-medium text-orange-400">
+                      {m.time}
+                    </div>
                   </div>
                 ))
               ) : (
-                <div className="text-center text-gray-400">ยังไม่มีข้อความ</div>
+                <div className="text-center text-lg font-medium text-orange-300">
+                  💭 ยังไม่มีข้อความ
+                </div>
               )}
             </section>
 
-            <footer className="border-t border-gray-200 bg-white px-4 py-3 dark:border-gray-700 dark:bg-gray-800">
-              <div className="flex items-center gap-3">
+            <footer className="border-t border-orange-200 bg-gradient-to-r from-yellow-100 to-orange-100 px-6 py-4">
+              <div className="flex items-center gap-4">
                 <input
                   value={text}
                   onChange={(e) => setText(e.target.value)}
                   onKeyDown={handleKeyDown}
-                  placeholder={`ส่งข้อความถึง ${selected?.name || "เพื่อน"}`}
-                  className="flex-1 rounded-full bg-gray-100 px-4 py-2 text-sm focus:outline-none dark:bg-gray-700"
+                  placeholder={`💬 ส่งข้อความถึง ${selected?.name || "เพื่อน"}...`}
+                  className="flex-1 rounded-full border-2 border-orange-200 bg-white/80 px-6 py-3 text-base text-orange-900 placeholder-orange-400 shadow-md focus:border-orange-400 focus:ring-2 focus:ring-orange-300 focus:outline-none"
                   disabled={!selected}
                 />
                 <button
                   onClick={sendMessage}
-                  className="flex items-center justify-center rounded-full bg-indigo-600 p-2 text-white hover:bg-indigo-700"
+                  className="flex items-center justify-center rounded-full bg-gradient-to-r from-orange-400 to-yellow-300 p-4 text-white shadow-lg transition-all duration-200 hover:scale-110 hover:shadow-xl disabled:opacity-50"
                   aria-label="ส่ง"
                   disabled={!selected}
                 >
-                  <FiSend />
+                  <FiSend size={24} />
                 </button>
               </div>
             </footer>
