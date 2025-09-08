@@ -13,6 +13,113 @@ class SigninService {
     return SigninService._instance;
   }
 
+  // #region chat
+  // ดึงห้องแชทที่ user เป็นสมาชิก
+  async getConversations(): Promise<{
+    success: boolean;
+    conversations?: any[];
+    message?: string;
+  }> {
+    try {
+      const response = await api.get(ApiPath.conversations, {
+        withCredentials: true,
+      });
+      const resp = response.data || {};
+      if (response.status === 200 && resp.ok) {
+        return { success: true, conversations: resp.conversations };
+      }
+      return { success: false, message: resp.message || "ไม่พบห้องแชท" };
+    } catch (error: any) {
+      return {
+        success: false,
+        message:
+          error?.response?.data?.message || error?.message || "เกิดข้อผิดพลาด",
+      };
+    }
+  }
+
+  // สร้างห้องแชทใหม่ (1:1 หรือกลุ่ม)
+  async createConversation({
+    name,
+    is_group,
+    memberIds,
+  }: {
+    name?: string;
+    is_group?: boolean;
+    memberIds: number[];
+  }): Promise<{ success: boolean; conversationId?: number; message?: string }> {
+    try {
+      const response = await api.post(
+        ApiPath.conversations,
+        { name, is_group, memberIds },
+        { withCredentials: true },
+      );
+      const resp = response.data || {};
+      if (response.status === 200 && resp.ok) {
+        return { success: true, conversationId: resp.conversationId };
+      }
+      return {
+        success: false,
+        message: resp.message || "สร้างห้องแชทไม่สำเร็จ",
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        message:
+          error?.response?.data?.message || error?.message || "เกิดข้อผิดพลาด",
+      };
+    }
+  }
+
+  // ดึงข้อความในห้องแชท
+  async getMessages(
+    conversationId: number,
+  ): Promise<{ success: boolean; messages?: any[]; message?: string }> {
+    try {
+      const response = await api.get(
+        ApiPath.messages + `?conversationId=${conversationId}`,
+        { withCredentials: true },
+      );
+      const resp = response.data || {};
+      if (response.status === 200 && resp.ok) {
+        return { success: true, messages: resp.messages };
+      }
+      return { success: false, message: resp.message || "ไม่พบข้อความ" };
+    } catch (error: any) {
+      return {
+        success: false,
+        message:
+          error?.response?.data?.message || error?.message || "เกิดข้อผิดพลาด",
+      };
+    }
+  }
+
+  // ส่งข้อความ
+  async sendMessage(
+    conversationId: number,
+    text: string,
+  ): Promise<{ success: boolean; message?: string }> {
+    try {
+      const response = await api.post(
+        ApiPath.messages,
+        { conversationId, text },
+        { withCredentials: true },
+      );
+      const resp = response.data || {};
+      if (response.status === 200 && resp.ok) {
+        return { success: true };
+      }
+      return { success: false, message: resp.message || "ส่งข้อความไม่สำเร็จ" };
+    } catch (error: any) {
+      return {
+        success: false,
+        message:
+          error?.response?.data?.message || error?.message || "เกิดข้อผิดพลาด",
+      };
+    }
+  }
+  // #endregion
+
   //#region login
   async login(body: any): Promise<{ success: Boolean; message: string }> {
     console.log("login body", body);
@@ -111,11 +218,71 @@ class SigninService {
       const response = await api.get(ApiPath.me, { withCredentials: true });
       const resp = response.data || {};
       if (response.status === 200 && (resp.ok || resp.success)) {
-        return { success: true, message: resp.message || "OK", user: resp.user };
+        return {
+          success: true,
+          message: resp.message || "OK",
+          user: resp.user,
+        };
       }
       return {
         success: false,
         message: resp.message || "ดึงข้อมูลผู้ใช้ไม่สำเร็จ",
+      };
+    } catch (error: any) {
+      const message =
+        error?.response?.data?.message ||
+        error?.message ||
+        "เกิดข้อผิดพลาดขณะดึงข้อมูลผู้ใช้";
+      return { success: false, message };
+    }
+  }
+  //#endregion
+
+  //#region pusher
+  async pusher(): Promise<{ success: boolean; message: string; user?: any }> {
+    try {
+      const response = await api.get(ApiPath.pusher.auth, {
+        withCredentials: true,
+      });
+      const resp = response.data || {};
+      if (response.status === 200 && (resp.ok || resp.success)) {
+        return {
+          success: true,
+          message: resp.message || "OK",
+          user: resp.user,
+        };
+      }
+      return {
+        success: false,
+        message: resp.message || "ดึงข้อมูลผู้ใช้ไม่สำเร็จ",
+      };
+    } catch (error: any) {
+      const message =
+        error?.response?.data?.message ||
+        error?.message ||
+        "เกิดข้อผิดพลาดขณะดึงข้อมูลผู้ใช้";
+      return { success: false, message };
+    }
+  }
+  //#endregion
+
+  //#region users
+  async users(): Promise<{ success: boolean; message: string; user?: any }> {
+    try {
+      const response = await api.get(ApiPath.users, {
+        withCredentials: true,
+      });
+      const resp = response.data || {};
+      if (response.status === 200 && (resp.ok || resp.success)) {
+        return {
+          success: true,
+          message: resp.message || "OK",
+          user: resp.user,
+        };
+      }
+      return {
+        success: false,
+        message: resp.message || "ดึงข้อมูลผู้อื่นไม่สำเร็จ",
       };
     } catch (error: any) {
       const message =

@@ -9,23 +9,23 @@ import { useRouter } from "next/navigation";
 export default function Home() {
   const router = useRouter();
 
-  useEffect(() => {
-    // ตรวจสอบว่าผู้ใช้ login แล้วหรือยัง
-    const checkAuth = () => {
-      const localToken = localStorage.getItem("token");
-      const cookieToken = document.cookie
-        .split("; ")
-        .find((row) => row.startsWith("token="))
-        ?.split("=")[1];
+  // useEffect(() => {
+  //   // ตรวจสอบว่าผู้ใช้ login แล้วหรือยัง
+  //   const checkAuth = () => {
+  //     const localToken = localStorage.getItem("token");
+  //     const cookieToken = document.cookie
+  //       .split("; ")
+  //       .find((row) => row.startsWith("token="))
+  //       ?.split("=")[1];
 
-      // ถ้ามี token ให้ redirect ไป dashboard
-      if (localToken || cookieToken) {
-        router.push("/dashboard");
-      }
-    };
+  //     // ถ้ามี token ให้ redirect ไป dashboard
+  //     if (localToken || cookieToken) {
+  //       router.push("/dashboard");
+  //     }
+  //   };
 
-    checkAuth();
-  }, [router]);
+  //   checkAuth();
+  // }, [router]);
 
   return (
     <>

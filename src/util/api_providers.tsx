@@ -17,6 +17,7 @@ class APIProvider {
         "Content-Type": "application/json; charset=UTF-8",
         Accept: "*/*",
       },
+      withCredentials: true, // สำคัญมากสำหรับ session/cookie auth
     });
 
     // 🛡️ Interceptor: Logging + Error Handling
