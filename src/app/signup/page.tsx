@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import SigninService from "@/service/signin_service";
 import { useRouter } from "next/navigation";
+import Hero from "@/app/signin/page";
 
 const SignupPage = () => {
   const router = useRouter();
@@ -37,7 +38,7 @@ const SignupPage = () => {
     };
     const res = await SigninService.register(payload);
     if (res.success) {
-      router.push("/Hero");
+      router.push("/signin");
     }
   };
 
@@ -107,7 +108,7 @@ const SignupPage = () => {
 
         <p className="mt-6 text-center text-sm text-gray-400">
           มีบัญชีอยู่แล้ว?{" "}
-          <Link href="/Hero" className="text-blue-400 hover:underline">
+          <Link href="/signin" className="text-blue-400 hover:underline">
             เข้าสู่ระบบ
           </Link>
         </p>

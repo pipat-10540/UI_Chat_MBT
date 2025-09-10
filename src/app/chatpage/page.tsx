@@ -201,12 +201,22 @@ function ChatPage() {
     }
   }
 
+  const handleLogout = async () => {
+    const result = await SigninService.logout();
+    if (result.success) {
+      alert("ออกจากระบบสำเร็จ");
+      window.location.href = "/signin"; // redirect ไปหน้า signin
+    } else {
+      alert(result.message);
+    }
+  };
+
   // ...existing code...
   return (
     <div className="min-h-screen w-full bg-gradient-to-br from-yellow-100 via-orange-100 to-yellow-200">
       <div className="flex h-screen w-full flex-col items-center justify-center p-4">
         <h1 className="mb-6 text-4xl font-bold text-orange-600 drop-shadow-lg">
-          💬 หน้าแชท
+          💬 หน้าแชทเทสระบบ
         </h1>
         <div className="flex h-[85vh] w-full max-w-6xl overflow-hidden rounded-3xl border border-orange-200 bg-white/90 shadow-2xl backdrop-blur">
           {/* Left: Friends list */}
@@ -231,6 +241,13 @@ function ChatPage() {
                 </div>
               )}
             </div>
+            <form onSubmit={handleLogout}>
+              <div className="mb-6">
+                <button className="bg-primary hover:bg-primary/90 w-full rounded-xs px-9 py-4 text-base font-medium text-white duration-300">
+                  ออกจากระบบ
+                </button>
+              </div>
+            </form>
             <div className="mb-3 px-6 text-base font-bold text-orange-600">
               🌟 เพื่อน
             </div>

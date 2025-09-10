@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Header from "@/components/Header";
 import SigninService from "@/service/signin_service";
+
 const Hero = () => {
   const router = useRouter();
   const [form, setForm] = useState({ email: "", ticket: "" });

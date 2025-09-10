@@ -12,6 +12,7 @@ const ApiPath = {
   users: `${api_path}/users`,
   conversations: `${api_path}/api/conversations`,
   messages: `${api_path}/api/messages`,
+  logout: `${api_path}/logout`,
 };
 
 export default ApiPath;

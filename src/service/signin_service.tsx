@@ -37,7 +37,9 @@ class SigninService {
       };
     }
   }
+  // #endregion
 
+  //#region createConversation
   // สร้างห้องแชทใหม่ (1:1 หรือกลุ่ม)
   async createConversation({
     name,
@@ -70,7 +72,9 @@ class SigninService {
       };
     }
   }
+  // #endregion
 
+  //#region getMessages
   // ดึงข้อความในห้องแชท
   async getMessages(
     conversationId: number,
@@ -93,7 +97,9 @@ class SigninService {
       };
     }
   }
+  //#endregion
 
+  //#region sendMessage
   // ส่งข้อความ
   async sendMessage(
     conversationId: number,
@@ -175,6 +181,45 @@ class SigninService {
         error?.message ||
         "เกิดข้อผิดพลาดขณะเข้าสู่ระบบ";
       alert(message);
+      return { success: false, message };
+    }
+  }
+  //#endregion
+
+  //#region logout
+  async logout(): Promise<{ success: boolean; message: string }> {
+    try {
+      const response = await api.post(
+        ApiPath.logout,
+        {},
+        {
+          withCredentials: true,
+        },
+      );
+      const resp = response.data || {};
+      if (response.status === 200 && (resp.ok || resp.success)) {
+        // ลบข้อมูลใน localStorage
+        try {
+          localStorage.removeItem("token");
+          localStorage.removeItem("users_id");
+          localStorage.removeItem("user");
+        } catch (e) {
+          console.warn("localStorage unavailable:", e);
+        }
+        return {
+          success: true,
+          message: resp.message || "ออกจากระบบสำเร็จ",
+        };
+      }
+      return {
+        success: false,
+        message: resp.message || "ออกจากระบบไม่สำเร็จ",
+      };
+    } catch (error: any) {
+      const message =
+        error?.response?.data?.message ||
+        error?.message ||
+        "เกิดข้อผิดพลาดขณะออกจากระบบ";
       return { success: false, message };
     }
   }
