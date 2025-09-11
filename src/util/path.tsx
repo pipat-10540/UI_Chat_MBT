@@ -3,16 +3,16 @@ const api_path =
 
 const ApiPath = {
   // Auth
-  login: `${api_path}/login`,
-  register: `${api_path}/register`,
-  me: `${api_path}/me`,
+  login: `${api_path}/api/login`,
+  register: `${api_path}/api/register`,
+  me: `${api_path}/api/me`,
+  users: `${api_path}/api/users`,
+  conversations: `${api_path}/api/conversations`,
+  messages: `${api_path}/api/messages`,
+  logout: `${api_path}/api/logout`,
   pusher: {
     auth: `${api_path}/pusher/auth`,
   },
-  users: `${api_path}/users`,
-  conversations: `${api_path}/api/conversations`,
-  messages: `${api_path}/api/messages`,
-  logout: `${api_path}/logout`,
 };
 
 export default ApiPath;

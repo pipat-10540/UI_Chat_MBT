@@ -70,7 +70,7 @@ function ChatPage() {
         setUser(res.user);
         try {
           // ดึง users ทั้งหมด (เพื่อนทุกคน)
-          const resp = await fetch("http://localhost:8080/users", {
+          const resp = await fetch("http://localhost:8080/api/users", {
             credentials: "include",
           });
           const data = await resp.json();
