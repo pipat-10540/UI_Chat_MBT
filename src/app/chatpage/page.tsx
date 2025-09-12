@@ -4,6 +4,7 @@ import React, { useEffect, useRef, useState } from "react";
 import SigninService from "@/service/signin_service";
 import { FiSend, FiUser } from "react-icons/fi";
 import { useRouter } from "next/navigation";
+import Pusher from "pusher-js";
 
 type Message = {
   id: string;
@@ -21,6 +22,18 @@ type Friend = {
   messages: Message[];
   online?: boolean;
 };
+
+// Setup Pusher
+const pusher = new Pusher("062ac7b9ef54f385bf5d", {
+  cluster: "ap1",
+  authEndpoint: "http://localhost:8080/pusher/auth",
+  auth: {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  },
+});
+
 function ChatPage() {
   const [selectedUserId, setSelectedUserId] = useState<string | number>("");
   const [selectedConversationId, setSelectedConversationId] = useState<
@@ -35,32 +48,42 @@ function ChatPage() {
     username?: string;
   } | null>(null);
 
-  // Poll ข้อความใหม่ทุก 1 วินาที
+  // 🚀 Pusher real-time messaging
   useEffect(() => {
     if (!selectedConversationId || !user) return;
-    const interval = setInterval(async () => {
-      const msgRes = await SigninService.getMessages(
-        Number(selectedConversationId),
+
+    const channelName = `conversation-${selectedConversationId}`;
+    const channel = pusher.subscribe(channelName);
+
+    // ฟัง event ข้อความใหม่
+    channel.bind("new-message", (messageData: any) => {
+      console.log("Received Pusher message:", messageData);
+      
+      const newMessage: Message = {
+        id: messageData.id,
+        from: messageData.sender_id.toString() === user?.id?.toString() ? "me" : "them",
+        text: messageData.text,
+        time: messageData.created_at,
+      };
+
+      setFriends((prev) =>
+        prev.map((f) =>
+          f.conversationId === selectedConversationId
+            ? {
+                ...f,
+                messages: [...f.messages, newMessage],
+                lastMessage: messageData.text,
+              }
+            : f,
+        ),
       );
-      if (msgRes.success && msgRes.messages) {
-        setFriends((prev) =>
-          prev.map((f) =>
-            f.conversationId === selectedConversationId
-              ? {
-                  ...f,
-                  messages: msgRes.messages.map((m: any) => ({
-                    id: m.id,
-                    from: m.sender_id === user?.id ? "me" : "them",
-                    text: m.text,
-                    time: m.created_at,
-                  })),
-                }
-              : f,
-          ),
-        );
-      }
-    }, 1000);
-    return () => clearInterval(interval);
+    });
+
+    // Cleanup: unsubscribe เมื่อออกจากห้อง
+    return () => {
+      channel.unbind("new-message");
+      pusher.unsubscribe(channelName);
+    };
   }, [selectedConversationId, user]);
 
   useEffect(() => {
@@ -139,6 +162,41 @@ function ChatPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // 🚀 ฟัง user notifications (ห้องใหม่)
+  useEffect(() => {
+    if (!user?.id) return;
+
+    const userChannelName = `user-${user.id}`;
+    const userChannel = pusher.subscribe(userChannelName);
+
+    // ฟัง event ห้องใหม่
+    userChannel.bind("new-conversation", async (conversationData: any) => {
+      // รีเฟรช friends list เมื่อมีห้องใหม่
+      const convRes = await SigninService.getConversations();
+      if (convRes.success && convRes.conversations) {
+        // อัปเดต friends ที่มี conversation ใหม่
+        setFriends((prev) =>
+          prev.map((f) => {
+            const conv = convRes.conversations.find(
+              (c: any) =>
+                !c.is_group &&
+                c.members &&
+                c.members.some((m: any) => m.id === f.id) &&
+                c.members.some((m: any) => m.id === user.id),
+            );
+            return conv ? { ...f, conversationId: conv.id } : f;
+          }),
+        );
+      }
+    });
+
+    // Cleanup
+    return () => {
+      userChannel.unbind("new-conversation");
+      pusher.unsubscribe(userChannelName);
+    };
+  }, [user?.id]);
+
   useEffect(() => {
     // ensure selectedId exists after friends update
     if (!friends.find((f) => f.id === selectedUserId) && friends.length > 0) {
@@ -160,38 +218,20 @@ function ChatPage() {
   async function sendMessage() {
     const trimmed = text.trim();
     if (!trimmed || !selectedConversationId) return;
+
+    setText(""); // ล้าง input ทันที
+
     // ส่งข้อความไป backend
     const res = await SigninService.sendMessage(
       Number(selectedConversationId),
       trimmed,
     );
-    if (res.success) {
-      // ดึงข้อความล่าสุดจาก backend
-      const msgRes = await SigninService.getMessages(
-        Number(selectedConversationId),
-      );
-      if (msgRes.success && msgRes.messages) {
-        setFriends((prev) =>
-          prev.map((f) =>
-            f.conversationId === selectedConversationId
-              ? {
-                  ...f,
-                  lastMessage: trimmed,
-                  messages: msgRes.messages.map((m: any) => ({
-                    id: m.id,
-                    from: m.sender_id === user?.id ? "me" : "them",
-                    text: m.text,
-                    time: m.created_at,
-                  })),
-                }
-              : f,
-          ),
-        );
-      }
-      setText("");
-    } else {
+
+    if (!res.success) {
       alert(res.message || "ส่งข้อความไม่สำเร็จ");
+      setText(trimmed); // คืนค่า text กลับไป
     }
+    // 🚀 ไม่ต้องเพิ่มข้อความ local เพราะ Pusher จะส่งกลับมา
   }
 
   function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {

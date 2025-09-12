@@ -117,10 +117,20 @@ class SigninService {
       }
       return { success: false, message: resp.message || "ส่งข้อความไม่สำเร็จ" };
     } catch (error: any) {
+      console.error("SendMessage Error:", error); // Debug log
+      console.error("Error details:", {
+        message: error?.message,
+        status: error?.response?.status,
+        data: error?.response?.data,
+        config: error?.config,
+      });
+      const status = error?.response?.status;
+      const message =
+        error?.response?.data?.message || error?.message || "เกิดข้อผิดพลาด";
+
       return {
         success: false,
-        message:
-          error?.response?.data?.message || error?.message || "เกิดข้อผิดพลาด",
+        message: `[${status}] ${message}`,
       };
     }
   }
