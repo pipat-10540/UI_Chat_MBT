@@ -10,6 +10,8 @@ const ApiPath = {
   conversations: `${api_path}/api/conversations`,
   messages: `${api_path}/api/messages`,
   logout: `${api_path}/api/logout`,
+  forgot_password: `${api_path}/api/forgot-password`,
+  resetPassword: `${api_path}/api/reset-password`,
   pusher: {
     auth: `${api_path}/pusher/auth`,
   },

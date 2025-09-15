@@ -44,7 +44,8 @@ class APIProvider {
         //   ` [${error.config?.method?.toUpperCase()}] ${error.config?.url} failed after ${duration} ms`,
         // );
         // console.error("Error:", error.message);
-        return Promise.reject(error.response || error);
+        // Important: reject the full AxiosError so callers can read error.response.status & error.response.data
+        return Promise.reject(error);
       },
     );
   }
@@ -63,30 +64,13 @@ class APIProvider {
     return this._axios.get<T>(url, config);
   }
 
-  async post<T = any>(
+  post<T = any>(
     url: string,
     data?: any,
     config?: AxiosRequestConfig,
   ): Promise<AxiosResponse<T>> {
-    try {
-      const response = await this._axios.post<T>(url, data, config);
-      return response;
-    } catch (error: any) {
-      if (axios.isAxiosError(error)) {
-        // console.error("Axios error:", error.message);
-        // console.error("Error code:", error.code);
-        // console.error("Error response:", error.response?.data);
-        throw {
-          type: "AxiosError",
-          message: error.message,
-          code: error.code,
-          response: error.response?.data,
-        };
-      } else {
-        // console.error("Unexpected error:", error);
-        throw error;
-      }
-    }
+    // Let axios handle errors so callers receive a standard AxiosError with .response
+    return this._axios.post<T>(url, data, config);
   }
 
   put<T = any>(

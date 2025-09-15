@@ -162,7 +162,6 @@ class SigninService {
           } catch (e) {
             console.warn("localStorage unavailable:", e);
           }
-          alert(resp.message || "เข้าสู่ระบบสำเร็จ");
           return { success: true, message: resp.message || "OK" };
         }
 
@@ -175,7 +174,6 @@ class SigninService {
           } catch (e) {
             console.warn("localStorage unavailable:", e);
           }
-          alert("เข้าสู่ระบบสำเร็จ");
           return { success: true, message: "เข้าสู่ระบบสำเร็จ" };
         }
       }
@@ -192,6 +190,48 @@ class SigninService {
         "เกิดข้อผิดพลาดขณะเข้าสู่ระบบ";
       alert(message);
       return { success: false, message };
+    }
+  }
+  //#endregion
+
+  //#region forgot password
+  async forgotPassword(
+    body: any,
+  ): Promise<{ success: Boolean; message: string }> {
+    const response = await api.post(ApiPath.forgot_password, body);
+    if (response.status == 200) {
+      alert(response.data.message);
+      return {
+        success: response.data.success,
+        message: response.data.message,
+      };
+    } else {
+      alert(response.data.message);
+      return {
+        success: response.data.success,
+        message: response.data.message,
+      };
+    }
+  }
+  //#endregion
+
+  //#region reset password
+  async resetPassword(
+    body: any,
+  ): Promise<{ success: Boolean; message: string }> {
+    const response = await api.post(ApiPath.resetPassword, body);
+    if (response.status == 200) {
+      alert(response.data.message);
+      return {
+        success: response.data.success,
+        message: response.data.message,
+      };
+    } else {
+      alert(response.data.message);
+      return {
+        success: response.data.success,
+        message: response.data.message,
+      };
     }
   }
   //#endregion
