@@ -43,13 +43,20 @@ const SignupPage = () => {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[#0F172A] p-4">
-      <div className="w-full max-w-md rounded-md bg-[#1E293B] p-8 shadow-lg">
+    <div
+      className="flex min-h-screen items-center justify-center p-4"
+      style={{
+        backgroundImage: "url('/images/blog/G1.jpg')",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+      }}
+    >
+      <div className="w-full max-w-md rounded-md bg-[#05173300] p-8 shadow-lg">
         <h2 className="mb-2 text-center text-2xl font-bold text-white">
           สมัครสมาชิก
         </h2>
-        <p className="mb-6 text-center text-sm text-gray-400">
-          เพื่อใช้งาน MBT Soft Max Console.
+        <p className="text-1x2 mb-6 text-center text-2xl font-bold text-gray-800">
+          Tissue
         </p>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -59,7 +66,7 @@ const SignupPage = () => {
             value={form.username}
             onChange={handleChange}
             placeholder="ชื่อผู้ใช้"
-            className="w-full rounded-md border border-gray-600 bg-[#0F172A] p-2 text-white placeholder-gray-400"
+            className="w-full rounded-md border border-gray-600 bg-[#0f172a4d] p-2 text-white placeholder-gray-100"
             required
           />
           <input
@@ -106,9 +113,9 @@ const SignupPage = () => {
           </button>
         </form>
 
-        <p className="mt-6 text-center text-sm text-gray-400">
+        <p className="mt-6 text-center text-sm text-gray-800">
           มีบัญชีอยู่แล้ว?{" "}
-          <Link href="/signin" className="text-blue-400 hover:underline">
+          <Link href="/signin" className="text-blue-600 hover:underline">
             เข้าสู่ระบบ
           </Link>
         </p>

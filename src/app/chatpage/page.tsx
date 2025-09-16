@@ -58,10 +58,13 @@ function ChatPage() {
     // ฟัง event ข้อความใหม่
     channel.bind("new-message", (messageData: any) => {
       console.log("Received Pusher message:", messageData);
-      
+
       const newMessage: Message = {
         id: messageData.id,
-        from: messageData.sender_id.toString() === user?.id?.toString() ? "me" : "them",
+        from:
+          messageData.sender_id.toString() === user?.id?.toString()
+            ? "me"
+            : "them",
         text: messageData.text,
         time: messageData.created_at,
       };
@@ -131,7 +134,7 @@ function ChatPage() {
                   }
                   return {
                     id: u.id,
-                    name: u.fullname || u.username,
+                    name: u.username,
                     conversationId: conv ? conv.id : undefined,
                     messages,
                     online: true,
@@ -256,7 +259,7 @@ function ChatPage() {
     <div className="min-h-screen w-full bg-gradient-to-br from-yellow-100 via-orange-100 to-yellow-200">
       <div className="flex h-screen w-full flex-col items-center justify-center p-4">
         <h1 className="mb-6 text-4xl font-bold text-orange-600 drop-shadow-lg">
-          💬 หน้าแชทเทสระบบ
+          💬 Tissue
         </h1>
         <div className="flex h-[85vh] w-full max-w-6xl overflow-hidden rounded-3xl border border-orange-200 bg-white/90 shadow-2xl backdrop-blur">
           {/* Left: Friends list */}
@@ -266,21 +269,20 @@ function ChatPage() {
                 👤 โปรไฟล์ผู้ใช้
               </div>
             </div>
-            <div className="space-y-2 overflow-auto px-4 py-2">
-              {user && (
-                <div className="flex w-full items-center gap-3 rounded-2xl border border-orange-200 bg-gradient-to-r from-orange-100 to-yellow-100 px-4 py-3 shadow-sm">
-                  <div className="relative flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-yellow-300 to-orange-400 text-white shadow-lg">
-                    <FiUser size={24} />
-                    <span className="absolute right-0 bottom-0 block h-4 w-4 rounded-full border-2 border-white bg-green-500"></span>
-                  </div>
-                  <div className="flex-1">
-                    <div className="font-bold text-orange-800">
-                      {user.fullname || user.username || "ไม่ระบุ"}
-                    </div>
+            {/* User profile always visible at top */}
+            {user && (
+              <div className="sticky top-0 z-10 flex w-full items-center gap-3 rounded-2xl border border-orange-200 bg-gradient-to-r from-orange-100 to-yellow-100 px-4 py-3 shadow-sm">
+                <div className="relative flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-yellow-300 to-orange-400 text-white shadow-lg">
+                  <FiUser size={24} />
+                  <span className="absolute right-0 bottom-0 block h-4 w-4 rounded-full border-2 border-white bg-green-500"></span>
+                </div>
+                <div className="flex-1">
+                  <div className="font-bold text-orange-800">
+                    {user.username || "ไม่ระบุ"}
                   </div>
                 </div>
-              )}
-            </div>
+              </div>
+            )}
             <form onSubmit={handleLogout}>
               <div className="mb-6">
                 <button className="bg-primary hover:bg-primary/90 w-full rounded-xs px-9 py-4 text-base font-medium text-white duration-300">
@@ -291,7 +293,10 @@ function ChatPage() {
             <div className="mb-3 px-6 text-base font-bold text-orange-600">
               🌟 เพื่อน
             </div>
-            <div className="space-y-2 px-4 pb-4">
+            <div
+              className="space-y-2 overflow-auto px-4 pb-4"
+              style={{ maxHeight: "calc(85vh - 250px)" }}
+            >
               {friends.map((f) => (
                 <button
                   key={f.id}
