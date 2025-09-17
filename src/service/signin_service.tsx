@@ -281,7 +281,19 @@ class SigninService {
     try {
       console.log("SigninService.register -> url:", ApiPath.register);
       console.log("SigninService.register -> payload:", body);
-      const response = await api.post(ApiPath.register, body);
+
+      let response;
+      if (body instanceof FormData) {
+        // ส่ง FormData โดยไม่ตั้ง Content-Type ให้ browser/axios จัดการเอง
+        response = await api.post(ApiPath.register, body, {
+          headers: {
+            "Content-Type": undefined, // ลบ Content-Type ออก
+          },
+        });
+      } else {
+        response = await api.post(ApiPath.register, body);
+      }
+
       console.log("register response", response);
       console.log("register response.data", response.data);
 

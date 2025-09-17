@@ -15,13 +15,18 @@ const SignupPage = () => {
     ticket: "",
     confirmTicket: "",
   });
+  const [image, setImage] = useState<File | null>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setForm((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    const { name, value, type, files } = e.target;
+    if (type === "file" && files && files.length > 0) {
+      setImage(files[0]);
+    } else {
+      setForm((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -30,13 +35,15 @@ const SignupPage = () => {
       alert("❌ รหัสผ่านไม่ตรงกัน");
       return;
     }
-    const payload = {
-      username: form.username,
-      fullname: form.fullname,
-      email: form.email,
-      ticket: form.ticket,
-    };
-    const res = await SigninService.register(payload);
+    const formData = new FormData();
+    formData.append("username", form.username);
+    formData.append("fullname", form.fullname);
+    formData.append("email", form.email);
+    formData.append("ticket", form.ticket);
+    if (image) {
+      formData.append("image", image);
+    }
+    const res = await SigninService.register(formData);
     if (res.success) {
       router.push("/signin");
     }
@@ -59,7 +66,29 @@ const SignupPage = () => {
           Tissue
         </p>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form
+          onSubmit={handleSubmit}
+          className="space-y-4"
+          encType="multipart/form-data"
+        >
+          <div className="space-y-2">
+            {image && (
+              <div className="flex justify-center">
+                <img
+                  src={URL.createObjectURL(image)}
+                  alt="Preview"
+                  className="h-20 w-20 rounded-full object-cover border-2 border-gray-400"
+                />
+              </div>
+            )}
+            <input
+              type="file"
+              name="image"
+              accept="image/*"
+              onChange={handleChange}
+              className="w-full rounded-md border border-gray-600 bg-[#0F172A] p-2 text-white placeholder-gray-400"
+            />
+          </div>
           <input
             type="text"
             name="username"
