@@ -21,6 +21,7 @@ type Friend = {
   conversationId?: number;
   messages: Message[];
   online?: boolean;
+  profileImageUrl?: string;
 };
 
 // Setup Pusher
@@ -46,6 +47,7 @@ function ChatPage() {
     id?: string;
     fullname?: string;
     username?: string;
+    profileImageUrl?: string;
   } | null>(null);
 
   // 🚀 Pusher real-time messaging
@@ -138,6 +140,7 @@ function ChatPage() {
                     conversationId: conv ? conv.id : undefined,
                     messages,
                     online: true,
+                    profileImageUrl: u.profileImageUrl, // เพิ่ม URL รูปโปรไฟล์
                   };
                 }),
             );
@@ -272,8 +275,16 @@ function ChatPage() {
             {/* User profile always visible at top */}
             {user && (
               <div className="sticky top-0 z-10 flex w-full items-center gap-3 rounded-2xl border border-orange-200 bg-gradient-to-r from-orange-100 to-yellow-100 px-4 py-3 shadow-sm">
-                <div className="relative flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-yellow-300 to-orange-400 text-white shadow-lg">
-                  <FiUser size={24} />
+                <div className="relative flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-yellow-300 to-orange-400 text-white shadow-lg overflow-hidden">
+                  {user.profileImageUrl ? (
+                    <img
+                      src={`http://localhost:8080${user.profileImageUrl}`}
+                      alt={user.username || "ผู้ใช้"}
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    <FiUser size={24} />
+                  )}
                   <span className="absolute right-0 bottom-0 block h-4 w-4 rounded-full border-2 border-white bg-green-500"></span>
                 </div>
                 <div className="flex-1">
@@ -346,8 +357,16 @@ function ChatPage() {
                       : "hover:border-orange-300 hover:bg-gradient-to-r hover:from-yellow-100 hover:to-orange-100 hover:shadow-md"
                   }`}
                 >
-                  <div className="relative flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-yellow-200 to-orange-300 text-orange-900 shadow-md">
-                    <FiUser size={20} />
+                  <div className="relative flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-yellow-200 to-orange-300 text-orange-900 shadow-md overflow-hidden">
+                    {f.profileImageUrl ? (
+                      <img
+                        src={`http://localhost:8080${f.profileImageUrl}`}
+                        alt={f.name}
+                        className="h-full w-full object-cover"
+                      />
+                    ) : (
+                      <FiUser size={20} />
+                    )}
                     <span
                       className={`absolute right-0 bottom-0 block h-3 w-3 rounded-full border-2 border-white ${
                         f.online ? "bg-green-500" : "bg-gray-400"
@@ -371,8 +390,16 @@ function ChatPage() {
           {/* Right: Chat area */}
           <main className="flex flex-1 flex-col bg-gradient-to-br from-yellow-50 to-orange-50">
             <header className="flex items-center gap-4 border-b border-orange-200 bg-gradient-to-r from-yellow-100 to-orange-100 px-6 py-4">
-              <div className="relative flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-yellow-300 to-orange-400 text-white shadow-lg">
-                <FiUser size={24} />
+              <div className="relative flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-yellow-300 to-orange-400 text-white shadow-lg overflow-hidden">
+                {selected?.profileImageUrl ? (
+                  <img
+                    src={`http://localhost:8080${selected.profileImageUrl}`}
+                    alt={selected.name}
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  <FiUser size={24} />
+                )}
                 <span
                   className={`absolute right-0 bottom-0 block h-4 w-4 rounded-full border-2 border-white ${selected?.online ? "bg-green-500" : "bg-gray-400"}`}
                 ></span>

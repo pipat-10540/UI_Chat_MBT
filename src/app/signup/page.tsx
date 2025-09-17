@@ -77,7 +77,7 @@ const SignupPage = () => {
                 <img
                   src={URL.createObjectURL(image)}
                   alt="Preview"
-                  className="h-20 w-20 rounded-full object-cover border-2 border-gray-400"
+                  className="h-20 w-20 rounded-full border-2 border-gray-400 object-cover"
                 />
               </div>
             )}
